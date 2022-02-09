@@ -140,6 +140,9 @@ normal: prebuild $(OUTDIR)/$(NAME).bin
 
 sram: prebuild $(OUTDIR)/$(NAME).bin
 
+run: prebuild $(OUTDIR)/$(NAME).bin
+	$(PYSTLINK) -q reset:halt write:$(FLASH_BASE):$< set:msp:$(shell python -c $(GETSP)) set:pc:$(shell python -c $(GETPC))
+
 both: prebuild
 	make distclean
 	make bin/Shell0.bin
@@ -154,10 +157,6 @@ bin/Shell0.bin:
 	make clean
 	make normal
 	cp   out/shell.bin bin/shell0.bin
-
-run: $(OUTDIR)/$(NAME).bin
-	@echo Run
-	$(PYSTLINK) -q reset:halt write:$(FLASH_BASE):$< set:msp:$(shell python -c $(GETSP)) set:pc:$(shell python -c $(GETPC))
 
 dump:
 	$(PYSTLINK) dump:core
