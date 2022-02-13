@@ -1,8 +1,8 @@
 OUTDIR   := out
 PRJDIR   := $(shell pwd)
 EMDDIR   := $(shell realpath $(PRJDIR)/..)
-SHELL    := $(EMDDIR)/Shell
-SDKDIR   := $(SHELL)/lib
+SHELLDIR := $(EMDDIR)/Shell
+SDKDIR   := $(SHELLDIR)/lib
 PREFIX   := arm-none-eabi-
 CC       := $(PREFIX)gcc
 LD       := $(PREFIX)ld
@@ -25,10 +25,10 @@ NAME      = cmd_$(MODNAME)
 
 LIBDIR= $(EMDDIR)/Lib
 INCDIR= -I. \
-        -I$(SHELL) \
-        -I$(SHELL)/lib/Cmsis/Include \
-        -I$(SHELL)/lib/Cmsis/Device/ST/STM32F4xx/Include \
-        -I$(SHELL)/lib/Sys/inc \
+        -I$(SHELLDIR) \
+        -I$(SHELLDIR)/lib/Cmsis/Include \
+        -I$(SHELLDIR)/lib/Cmsis/Device/ST/STM32F4xx/Include \
+        -I$(SHELLDIR)/lib/Sys/inc \
 
 
 # Define optimisation level here
@@ -75,7 +75,7 @@ $(OUTDIR)/$(NAME).elf : $(OBJ)
 $(OUTDIR)/%.o : $(PRJDIR)/%.c
 	$(CC) -c $(CPFLAGS) $(CPPFLAGS) $< -o $@
 
-$(OUTDIR)/%.o : $(SHELL)/lib/Sys/src/%.c
+$(OUTDIR)/%.o : $(SHELLDIR)/lib/Sys/src/%.c
 	$(CC) -c $(CPFLAGS) $(CPPFLAGS) $< -o $@
 
 
