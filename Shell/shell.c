@@ -5,6 +5,8 @@
 BYTE        gCmdPos;
 CHAR        gCmdLine[MAX_LINE_LEN];
 
+extern void send_status_resp ();
+
 void usb_download ()
 {
   DWORD  addr;
@@ -66,6 +68,10 @@ void usb_download ()
         } else if (buf[1] == (BYTE)'S' ) { // Skip page
           addr += *(DWORD *)(buf + 4);
           len  += *(DWORD *)(buf + 4);
+        } else if (buf[1] == (BYTE)'H') {  // Status query
+          if (buf[3]) {
+            send_status_resp ();
+          }
         } else if (buf[1] == (BYTE)'D' ) { // Sent done
           plen = 0xF0;
         }
@@ -373,18 +379,7 @@ BYTE get_usb_cmdline (char *cmdline)
     } else if (len == CMD_PACKET_LEN) {
       if (buf[1] == 'H') {
         if (buf[3]) {
-          // Request a echo packet back
-          len = EP_MAX_SIZE;
-          buf = usb_get_tx_buf(len);
-          if (buf) {
-            // fill data to buffer
-            memset (buf, 0, len);
-            *(DWORD *)buf = 0x53545343; // CSTS
-            buf[4] = len;
-            buf[7] = 1;
-            memcpy (buf + 16, gCommonApi->status, 8);
-            usb_add_tx_buf (len);
-          }
+          send_status_resp ();
         }
       }
       result = 0;

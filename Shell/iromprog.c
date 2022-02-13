@@ -4,6 +4,25 @@
 #define IROM_BASE  0x08000000
 #define IROM_END   0x08100000
 
+#define  MCU_TYPE_STM32F407  1
+
+void send_status_resp ()
+{
+  BYTE  *buf;
+
+  // Request a echo packet back
+  do {
+    buf = usb_get_tx_buf(EP_MAX_SIZE);
+  } while (!buf);
+  // fill data to buffer
+  memset (buf, 0, EP_MAX_SIZE);
+  *(DWORD *)buf = 0x53545343; // CSTS
+  buf[4] = EP_MAX_SIZE;
+  buf[7] = MCU_TYPE_STM32F407;
+  memcpy (buf + 16, gCommonApi->status, 8);
+  usb_add_tx_buf (EP_MAX_SIZE);
+}
+
 uint32_t flash_sector_size (uint8_t sector)
 {
   if (sector >= 0 && sector <= 3)
@@ -148,6 +167,10 @@ void irom_prog (void)
               }
             }
             printf ("DONE\n");
+        } else if (buf[1] == (BYTE)'H') {
+          if (buf[3]) {
+            send_status_resp ();
+          }
         } else if (buf[1] == (BYTE)'D' ) { // Sent done
           plen = 0xF0;
         }
